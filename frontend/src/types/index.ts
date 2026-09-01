@@ -119,6 +119,25 @@ export interface InvitationData {
     width: number | null;
     height: number | null;
   }>;
+  invitationMeta?: {
+    eventSlug: string;
+    guestToken: string;
+  };
+  hasTransferConfirmation?: boolean;
+}
+
+export interface TransferConfirmation {
+  id: string;
+  guestName: string;
+  senderName: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
+  amount: string | number | null;
+  transferDate: string | null;
+  notes: string | null;
+  proofImageUrl: string;
+  createdAt: string;
 }
 
 export interface ApiResponse<T> {

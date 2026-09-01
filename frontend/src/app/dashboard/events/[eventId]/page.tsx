@@ -13,6 +13,7 @@ import { EventDetails } from '@/components/wedding/event-details';
 import { GuestManager } from '@/components/wedding/guest-manager';
 import { TemplateEditor } from '@/components/wedding/template-editor';
 import { TemplatePreview } from '@/components/wedding/template-preview';
+import { TransferManager } from '@/components/wedding/transfer-manager';
 
 export default function EventPage() {
   const params = useParams();
@@ -71,6 +72,9 @@ export default function EventPage() {
             <TabsTrigger value="guests" className="text-xs sm:text-sm px-3 py-2">
               Guests
             </TabsTrigger>
+            <TabsTrigger value="transfers" className="text-xs sm:text-sm px-3 py-2">
+              Transfers
+            </TabsTrigger>
             <TabsTrigger value="template" className="text-xs sm:text-sm px-3 py-2">
               Template
             </TabsTrigger>
@@ -86,6 +90,10 @@ export default function EventPage() {
 
         <TabsContent value="guests" className="mt-4 sm:mt-6">
           <GuestManager weddingId={eventId} weddingSlug={wedding.slug} />
+        </TabsContent>
+
+        <TabsContent value="transfers" className="mt-4 sm:mt-6">
+          <TransferManager weddingId={eventId} />
         </TabsContent>
 
         <TabsContent value="template" className="mt-4 sm:mt-6">

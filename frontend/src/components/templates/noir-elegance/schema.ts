@@ -14,12 +14,13 @@ export const noirEleganceSchema = z.object({
   verse: z
     .object({
       enabled: z.boolean().default(true),
+      sectionLabel: z.string().default('Islam'),
       quote: z
         .string()
         .default(
-          '"So they are no longer two, but one flesh. Therefore what God has joined together, let no one separate."'
+          '"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."'
         ),
-      source: z.string().default('Matthew 19:6'),
+      source: z.string().default('QS. Ar-Rum : 21'),
       backgroundImageUrl: z.string().optional(),
     })
     .default({}),
@@ -50,7 +51,7 @@ export const noirEleganceSchema = z.object({
   story: z
     .object({
       enabled: z.boolean().default(true),
-      title: z.string().default('Our Journey'),
+      title: z.string().default('Our Story'),
       backgroundImageUrl: z.string().optional(),
       milestones: z
         .array(
@@ -60,9 +61,21 @@ export const noirEleganceSchema = z.object({
           })
         )
         .default([
-          { date: 'FEBRUARY 2022', description: 'We first met and everything changed.' },
-          { date: 'AUGUST 2023', description: 'We took our first trip together.' },
-          { date: 'JULY 2024', description: 'The proposal — a moment we will never forget.' },
+          {
+            date: '2024',
+            description:
+              'We met in 2024 — a simple encounter that slowly grew into something meaningful.',
+          },
+          {
+            date: '2024–2025',
+            description:
+              'Through everyday moments, we built trust, laughter, and a love we chose again and again.',
+          },
+          {
+            date: '2026',
+            description:
+              'In 2026, we chose to take the next step together — toward marriage and a life we will build side by side.',
+          },
         ]),
     })
     .default({}),
@@ -129,6 +142,22 @@ export const noirEleganceSchema = z.object({
     })
     .default({}),
 
+  transferConfirmation: z
+    .object({
+      enabled: z.boolean().default(true),
+      title: z.string().default('Konfirmasi Transfer'),
+      description: z
+        .string()
+        .default(
+          'Setelah melakukan transfer, mohon isi formulir di bawah dan unggah bukti transfer agar kami dapat mencatatnya dengan baik.'
+        ),
+      successMessage: z
+        .string()
+        .default('Terima kasih! Konfirmasi transfer Anda telah kami terima.'),
+      backgroundImageUrl: z.string().optional(),
+    })
+    .default({}),
+
   music: z
     .object({
       enabled: z.boolean().default(false),
@@ -148,6 +177,12 @@ export const noirEleganceSchema = z.object({
       title: z.string().default('Thank you!'),
       text: z.string().default('We would be honored to have you join us for this special moment.'),
       backgroundImageUrl: z.string().optional(),
+      instagramUrl: z
+        .string()
+        .default(
+          'https://www.instagram.com/yfiiinn?igsi=MTF1cGo1bDdudnhkcg%3D%3D&utm_source=qr'
+        )
+        .describe('Instagram profile link'),
     })
     .default({}),
 });

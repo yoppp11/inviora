@@ -9,6 +9,8 @@ import { UniversalAudioPlayer } from '@/components/wedding/universal-audio-playe
 import { MusicController } from '@/components/wedding/music-controller';
 import type { InvitationData } from '@/types';
 import { noirEleganceSchema } from './schema';
+import { parseNoirContent } from './parse-noir-content';
+import { TransferConfirmationForm } from './transfer-confirmation-form';
 import { getSafeUrl } from '@/lib/safeUrl';
 
 import 'swiper/css';
@@ -32,6 +34,26 @@ function CopyBtn({ text }: { text: string }) {
   );
 }
 
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
   const { event, guest, template } = data;
   const config = template.config;
@@ -39,9 +61,9 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
   const content = useMemo(() => {
     try {
       const raw = (config as Record<string, unknown>).noirContent || config;
-      return noirEleganceSchema.parse(raw);
+      return parseNoirContent(raw);
     } catch {
-      return noirEleganceSchema.parse({});
+      return parseNoirContent({});
     }
   }, [config]);
 
@@ -168,7 +190,7 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
 
   const navItems = [
     { id: 'cover-clean', label: 'Home' },
-    ...(content.verse.enabled ? [{ id: 'verse', label: 'Verse' }] : []),
+    ...(content.verse.enabled ? [{ id: 'verse', label: content.verse.sectionLabel || 'Islam' }] : []),
     { id: 'groom', label: 'Groom' },
     { id: 'bride', label: 'Bride' },
     ...(content.story.enabled ? [{ id: 'story', label: 'Our Story' }] : []),
@@ -177,6 +199,9 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
     ...(content.dressCode.enabled ? [{ id: 'dress-code', label: 'Dress Code' }] : []),
     { id: 'gallery', label: 'Gallery' },
     ...(content.gift.enabled ? [{ id: 'gift', label: 'Gift' }] : []),
+    ...(content.transferConfirmation.enabled && data.invitationMeta
+      ? [{ id: 'transfer-confirmation', label: 'Transfer' }]
+      : []),
     { id: 'closing', label: 'Closing' },
   ];
 
@@ -530,6 +555,41 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
               </div>
             ), 'noir-overlay-heavy')}
 
+            {/* TRANSFER CONFIRMATION */}
+            {content.transferConfirmation.enabled &&
+              data.invitationMeta &&
+              renderSection('transfer-confirmation', (
+                <div className="flex flex-col h-full p-10 justify-center items-center text-center">
+                  {getSafeUrl(content.transferConfirmation.backgroundImageUrl) && (
+                    <img
+                      src={getSafeUrl(content.transferConfirmation.backgroundImageUrl)!}
+                      alt="Bg"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: '-50px' }}
+                    className="relative z-10 w-full"
+                  >
+                    <TransferConfirmationForm
+                      eventSlug={data.invitationMeta.eventSlug}
+                      guestToken={data.invitationMeta.guestToken}
+                      guestName={guest.name}
+                      accounts={content.gift.accounts}
+                      title={content.transferConfirmation.title}
+                      description={content.transferConfirmation.description}
+                      successMessage={content.transferConfirmation.successMessage}
+                      backgroundImageUrl={content.transferConfirmation.backgroundImageUrl}
+                      itemVariants={itemVariants}
+                      alreadySubmitted={data.hasTransferConfirmation}
+                    />
+                  </motion.div>
+                </div>
+              ), 'noir-overlay-heavy')}
+
             {/* 10. GALLERY */}
             {renderSection('gallery', (
               <div className="flex flex-col h-full p-6 justify-center items-center text-center">
@@ -578,7 +638,18 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
                     <div className="h-[1px] w-8 bg-white/30" />
                   </motion.div>
                 </motion.div>
-                <div className="relative z-10 pb-8 mt-auto">
+                <div className="relative z-10 pb-8 mt-auto flex flex-col items-center gap-3">
+                  {getSafeUrl(content.closing.instagramUrl) && (
+                    <a
+                      href={getSafeUrl(content.closing.instagramUrl)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:bg-white/20 transition-colors"
+                    >
+                      <InstagramIcon size={18} />
+                    </a>
+                  )}
                   <p className="text-[8px] tracking-[2px] opacity-40 uppercase">Created with Inviora</p>
                 </div>
               </div>

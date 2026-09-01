@@ -46,6 +46,7 @@ model WeddingEvent {
   guests         Guest[]
   templateConfig WeddingTemplateConfig?
   media          Media[]
+  transferConfirmations TransferConfirmation[]
 
   @@index([userId])
 }
@@ -60,8 +61,33 @@ model Guest {
   updatedAt       DateTime     @updatedAt
 
   weddingEvent    WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+  transferConfirmations TransferConfirmation[]
 
   @@index([weddingEventId])
+}
+
+model TransferConfirmation {
+  id              String       @id @default(cuid())
+  weddingEventId  String
+  guestId         String
+  guestName       String
+  senderName      String
+  bankName        String
+  accountNumber   String
+  accountHolder   String
+  amount          Decimal?
+  transferDate    DateTime?
+  notes           String?
+  proofImageUrl   String
+  proofPublicId   String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  weddingEvent    WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+  guest           Guest        @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@index([weddingEventId])
+  @@index([guestId])
 }
 
 model WeddingTemplateConfig {

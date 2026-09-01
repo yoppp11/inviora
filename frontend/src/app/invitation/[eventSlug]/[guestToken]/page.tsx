@@ -23,7 +23,11 @@ export default function InvitationPage() {
         return res.json();
       })
       .then((json) => {
-        setData(json.data);
+        setData({
+          ...json.data,
+          invitationMeta: { eventSlug, guestToken },
+          hasTransferConfirmation: Boolean(json.data.hasTransferConfirmation),
+        });
       })
       .catch(() => {
         setError(true);

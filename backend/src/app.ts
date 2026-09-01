@@ -9,6 +9,7 @@ import { guestRoutes } from './modules/guest/guest.routes';
 import { templateRoutes } from './modules/template/template.routes';
 import { mediaRoutes } from './modules/media/media.routes';
 import { invitationRoutes } from './modules/invitation/invitation.routes';
+import { transferConfirmationPublicRoutes, transferConfirmationRoutes } from './modules/transfer-confirmation/transfer-confirmation.routes';
 import { adminRoutes } from './modules/admin/admin.routes';
 import { logger } from './utils/logger';
 
@@ -46,7 +47,9 @@ app.use('/api/weddings', weddingRoutes);
 app.use('/api/weddings/:weddingId/guests', guestRoutes);
 app.use('/api/weddings/:weddingId/template', templateRoutes);
 app.use('/api/weddings/:weddingId/media', mediaRoutes);
+app.use('/api/weddings/:weddingId/transfer-confirmations', transferConfirmationRoutes);
 app.use('/api/public/invitations', invitationRoutes);
+app.use('/api/public/invitations', transferConfirmationPublicRoutes);
 
 // 404 catch-all
 app.use((_req, res) => {

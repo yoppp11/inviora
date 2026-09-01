@@ -28,6 +28,7 @@ export async function getInvitation(eventSlug: string, guestToken: string) {
       weddingEventId: event.id,
     },
     select: {
+      id: true,
       name: true,
       address: true,
     },
@@ -36,6 +37,11 @@ export async function getInvitation(eventSlug: string, guestToken: string) {
   if (!guest) {
     throw new NotFoundError('Invitation not found');
   }
+
+  const transferConfirmation = await prisma.transferConfirmation.findFirst({
+    where: { guestId: guest.id },
+    select: { id: true },
+  });
 
   return {
     event: {
@@ -61,5 +67,6 @@ export async function getInvitation(eventSlug: string, guestToken: string) {
       config: event.templateConfig?.config ?? {},
     },
     media: event.media,
+    hasTransferConfirmation: Boolean(transferConfirmation),
   };
 }

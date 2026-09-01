@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Upload, X, ImageIcon, Check } from 'lucide-react';
 import { WebsiteContentForm } from '@/components/wedding/website-content-form';
 import { noirEleganceSchema } from '@/components/templates/noir-elegance/schema';
+import { parseNoirContent } from '@/components/templates/noir-elegance/parse-noir-content';
 
 const TEMPLATE_OPTIONS: { key: TemplateKey; label: string; description: string }[] = [
   { key: 'elegant', label: 'Elegant', description: 'Classic and sophisticated design' },
@@ -73,9 +74,9 @@ export function TemplateEditor({ weddingId }: { weddingId: string }) {
 
   const noirContentDefaults = useMemo(() => {
     try {
-      return noirEleganceSchema.parse(config.noirContent || {});
+      return parseNoirContent(config.noirContent || {});
     } catch {
-      return noirEleganceSchema.parse({});
+      return parseNoirContent({});
     }
   }, [config.noirContent]);
 
@@ -134,7 +135,7 @@ export function TemplateEditor({ weddingId }: { weddingId: string }) {
 
   const handleTemplateSelect = (key: TemplateKey) => {
     if (key === 'noir-elegance' && !config.noirContent) {
-      const initialNoir = noirEleganceSchema.parse({
+      const initialNoir = parseNoirContent({
         cover: {
           title: wedding ? `${wedding.groomName} & ${wedding.brideName}` : undefined,
           date: wedding

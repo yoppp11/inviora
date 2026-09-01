@@ -34,6 +34,11 @@ vi.mock('../services/prisma', () => ({
       create: vi.fn(),
       delete: vi.fn(),
     },
+    transferConfirmation: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+    },
   },
 }));
 
@@ -346,9 +351,12 @@ describe('Public Invitation Service', () => {
     });
 
     (prisma.guest.findFirst as any).mockResolvedValue({
+      id: 'guest-1',
       name: 'Budi',
       address: 'Jakarta Selatan',
     });
+
+    (prisma.transferConfirmation.findFirst as any).mockResolvedValue(null);
 
     const { getInvitation } = await import(
       '../modules/invitation/invitation.service'
@@ -360,6 +368,7 @@ describe('Public Invitation Service', () => {
     expect(result.guest.name).toBe('Budi');
     expect(result.guest.address).toBe('Jakarta Selatan');
     expect(result.template.key).toBe('elegant');
+    expect(result.hasTransferConfirmation).toBe(false);
 
     // Should NOT expose internal IDs or user data
     expect((result as any).event.id).toBeUndefined();
