@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Ovo&display=swap');
+
+.noir-elegance {
+  --cod-gray: #101010;
+  --mine-shaft: #252525;
+  --white: #FFFFFF;
+  --silver: #CCCCCC;
+  --alto: #D8D8D8;
+  --mercury: #E9E9E9;
+
+  font-family: 'Inter', sans-serif;
+  color: var(--white);
+  background-color: var(--cod-gray);
+  overflow: hidden;
+}
+
+.noir-elegance h1,
+.noir-elegance h2,
+.noir-elegance .font-ovo {
+  font-family: 'Ovo', serif;
+}
+
+.noir-elegance .font-times {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.noir-scroller {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  -webkit-overflow-scrolling: touch;
+}
+
+.noir-section {
+  scroll-snap-align: start;
+  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .noir-layout {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+  }
+  .noir-panel-left {
+    width: 73.6%;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+  }
+  .noir-panel-right {
+    width: 26.4%;
+    height: 100vh;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 1023px) {
+  .noir-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .noir-panel-left {
+    display: none;
+  }
+  .noir-panel-right {
+    width: 100%;
+  }
+}
+
+.noir-overlay-light { background: rgba(16, 16, 16, 0.21); }
+.noir-overlay-medium { background: rgba(16, 16, 16, 0.36); }
+.noir-overlay-heavy { background: rgba(16, 16, 16, 0.89); }
+
+.noir-gallery-swiper {
+  width: 100%;
+  height: 100%;
+}
+.noir-gallery-swiper .swiper-pagination {
+  color: var(--white);
+  font-family: 'Ovo', serif;
+  font-size: 14px;
+  bottom: 20px !important;
+}
+.noir-gallery-swiper .swiper-button-next,
+.noir-gallery-swiper .swiper-button-prev {
+  color: var(--white);
+  transform: scale(0.5);
+}
+.noir-gallery-swiper .swiper-button-next::after,
+.noir-gallery-swiper .swiper-button-prev::after {
+  content: '';
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

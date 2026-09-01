@@ -1,0 +1,1 @@
+ALTER TABLE "WeddingEvent" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT false;

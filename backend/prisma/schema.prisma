@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EVENT_OWNER
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String
+  passwordHash String
+  role         Role           @default(EVENT_OWNER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  weddingEvents WeddingEvent[]
+}
+
+model WeddingEvent {
+  id             String    @id @default(cuid())
+  userId         String
+  title          String
+  slug           String    @unique
+  groomName      String
+  brideName      String
+  weddingDate    DateTime
+  ceremonyTime   String?
+  receptionTime  String?
+  venueName      String?
+  venueAddress   String?
+  mapUrl         String?
+  openingText    String?
+  closingText    String?
+  isActive       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guests         Guest[]
+  templateConfig WeddingTemplateConfig?
+  media          Media[]
+
+  @@index([userId])
+}
+
+model Guest {
+  id              String       @id @default(cuid())
+  weddingEventId  String
+  name            String
+  address         String?
+  invitationToken String       @unique
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  weddingEvent    WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+
+  @@index([weddingEventId])
+}
+
+model WeddingTemplateConfig {
+  id              String       @id @default(cuid())
+  weddingEventId  String       @unique
+  templateKey     String       @default("elegant")
+  config          Json         @default("{}")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  weddingEvent    WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+}
+
+model Media {
+  id              String       @id @default(cuid())
+  weddingEventId  String
+  publicId        String
+  secureUrl       String
+  resourceType    String       @default("image")
+  width           Int?
+  height          Int?
+  category        String?
+  createdAt       DateTime     @default(now())
+
+  weddingEvent    WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+
+  @@index([weddingEventId])
+}

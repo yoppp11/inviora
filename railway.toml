@@ -1,0 +1,19 @@
+# Railway deployment config for Inviora backend
+# Docs: https://docs.railway.com/guides/config-as-code
+#
+# Setup:
+# 1. Create a new Railway project
+# 2. Add PostgreSQL plugin (or use Neon and set DATABASE_URL manually)
+# 3. Connect this repo, set Root Directory = backend
+# 4. Add environment variables from backend/.env.example
+# 5. Set CORS_ORIGIN to your Vercel frontend URL
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "npm run start:prod"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 120
+restartPolicyType = "on_failure"
