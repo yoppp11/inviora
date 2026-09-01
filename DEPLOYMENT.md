@@ -117,7 +117,7 @@ npx prisma migrate deploy
 6. Test: buka `https://your-api-url/api/health`
 
 Railway akan menjalankan:
-- Build: `npm install && npm run build`
+- Build: `npm install --include=dev && npm run build && npm prune --omit=dev`
 - Start: `npm run start:prod` (migrate + start server)
 
 ### Step 4 — Deploy Frontend (Vercel)
