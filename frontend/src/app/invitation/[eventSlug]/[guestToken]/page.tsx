@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { InvitationData } from '@/types';
 import { TemplateRenderer } from '@/components/wedding/template-renderer';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 export default function InvitationPage() {
   const params = useParams();
@@ -15,7 +16,7 @@ export default function InvitationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+    const apiUrl = getApiBaseUrl();
 
     fetch(`${apiUrl}/public/invitations/${eventSlug}/${guestToken}`)
       .then((res) => {

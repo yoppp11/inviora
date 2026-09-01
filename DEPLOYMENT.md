@@ -74,7 +74,7 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/inviora?sslmode=require
 
 | Variable | Contoh production | Wajib |
 |----------|-------------------|-------|
-| `NEXT_PUBLIC_API_URL` | `https://inviora-api.up.railway.app/api` | ✅ |
+| `NEXT_API_URL` | `https://inviora-api.onrender.com/api` | ✅ |
 
 ### Generate JWT_SECRET
 
@@ -126,7 +126,7 @@ Railway akan menjalankan:
 2. Import repo GitHub `inviora`
 3. **Root Directory** = `frontend`
 4. **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` = `https://your-api-url/api`
+   - `NEXT_API_URL` = `https://your-api-url/api`
 5. Deploy
 
 ### Step 5 — Update CORS
@@ -168,7 +168,7 @@ Anda masih perlu set manual: `CORS_ORIGIN` dan credential Cloudinary.
 | Railway | `api.inviora.com` → backend |
 
 Setelah custom domain:
-1. Update `NEXT_PUBLIC_API_URL` di Vercel
+1. Update `NEXT_API_URL` di Vercel
 2. Update `CORS_ORIGIN` di backend
 
 ---
@@ -182,7 +182,7 @@ Setelah custom domain:
 | Prisma migration gagal | Jalankan `npx prisma migrate deploy` dengan `DATABASE_URL` production |
 | Upload gambar gagal | Verifikasi 3 variable Cloudinary di backend |
 | API 404 di Vercel | Backend harus di Railway/Render, bukan Vercel |
-| Login gagal production | Pastikan `NEXT_PUBLIC_API_URL` mengarah ke `/api` backend |
+| Login gagal production | Pastikan `NEXT_API_URL` mengarah ke `/api` backend |
 
 ---
 
@@ -194,7 +194,7 @@ Setelah custom domain:
 │             │                │  (Next.js)   │
 └─────────────┘                └──────┬───────┘
        │                              │
-       │  NEXT_PUBLIC_API_URL         │
+       │  NEXT_API_URL               │
        ▼                              ▼
 ┌─────────────┐     Prisma     ┌──────────────┐
 │  Cloudinary │◀── uploads ────│   Railway    │

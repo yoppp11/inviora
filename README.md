@@ -94,7 +94,7 @@ Lihat **[DEPLOYMENT.md](./DEPLOYMENT.md)** untuk panduan lengkap deploy ke produ
 ### Frontend (.env.local)
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_API_URL` | Backend API URL (default: http://localhost:4000/api) |
+| `NEXT_API_URL` | Backend API URL (default: http://localhost:4000/api) |
 
 ## API Endpoints
 

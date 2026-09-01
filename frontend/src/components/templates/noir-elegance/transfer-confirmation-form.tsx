@@ -5,6 +5,7 @@ import { motion, type Variants } from 'framer-motion';
 import { Upload, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getSafeUrl } from '@/lib/safeUrl';
+import { getApiBaseUrl } from '@/lib/api-config';
 
 type GiftAccount = {
   bankName: string;
@@ -92,7 +93,7 @@ export function TransferConfirmationForm({
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      const apiUrl = getApiBaseUrl();
       const formData = new FormData();
       formData.append('senderName', senderName.trim());
       formData.append('bankName', selectedAccount.bankName);
