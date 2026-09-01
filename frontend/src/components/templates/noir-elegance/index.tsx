@@ -178,8 +178,8 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
 
   const renderSection = (id: string, children: React.ReactNode, overlayClass = 'noir-overlay-medium') => (
     <section id={id} className="noir-section">
-      <div className={`absolute inset-0 z-10 ${overlayClass}`} />
-      <div className="relative z-20 flex flex-col h-full w-full">{children}</div>
+      <div className={`absolute inset-0 z-10 pointer-events-none ${overlayClass}`} />
+      <div className="relative z-20 flex flex-col h-full w-full pointer-events-auto">{children}</div>
     </section>
   );
 
@@ -231,7 +231,7 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
         <MusicController
           isPlaying={isPlaying}
           onToggle={() => setIsPlaying(!isPlaying)}
-          accentColor="#FFFFFF"
+          theme="dark"
         />
       )}
 
@@ -564,7 +564,7 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
                     <img
                       src={getSafeUrl(content.transferConfirmation.backgroundImageUrl)!}
                       alt="Bg"
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 z-0 w-full h-full object-cover pointer-events-none"
                     />
                   )}
                   <motion.div
@@ -572,7 +572,7 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, margin: '-50px' }}
-                    className="relative z-10 w-full"
+                    className="relative z-20 w-full pointer-events-auto"
                   >
                     <TransferConfirmationForm
                       eventSlug={data.invitationMeta.eventSlug}
@@ -582,7 +582,6 @@ export function NoirEleganceTemplate({ data }: { data: InvitationData }) {
                       title={content.transferConfirmation.title}
                       description={content.transferConfirmation.description}
                       successMessage={content.transferConfirmation.successMessage}
-                      backgroundImageUrl={content.transferConfirmation.backgroundImageUrl}
                       itemVariants={itemVariants}
                       alreadySubmitted={data.hasTransferConfirmation}
                     />

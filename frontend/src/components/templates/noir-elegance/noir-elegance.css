@@ -107,3 +107,93 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Transfer confirmation form — opaque panel over section background */
+.noir-transfer-form-panel {
+  background: rgba(26, 26, 26, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  touch-action: manipulation;
+}
+
+.noir-transfer-touch-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(201, 169, 98, 0.25);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.noir-transfer-input {
+  background-color: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--mercury);
+}
+
+.noir-transfer-input:focus {
+  border-color: rgba(201, 169, 98, 0.55);
+}
+
+.noir-transfer-upload {
+  background-color: #242424;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.noir-transfer-upload:hover {
+  background-color: #2c2c2c;
+}
+
+.noir-transfer-submit {
+  background: linear-gradient(135deg, #3a3a3a 0%, #252525 100%);
+  border: 1px solid rgba(201, 169, 98, 0.35);
+  color: #f2d9a0;
+}
+
+.noir-transfer-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #454545 0%, #2e2e2e 100%);
+  border-color: rgba(201, 169, 98, 0.55);
+}
+
+/* Dark music controller */
+.noir-music-btn {
+  background: linear-gradient(145deg, #2a2a2a 0%, #141414 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.noir-music-btn:hover {
+  border-color: rgba(201, 169, 98, 0.4);
+}
+
+.noir-music-spin {
+  animation: noir-music-rotate 4s linear infinite;
+}
+
+@keyframes noir-music-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.noir-music-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.noir-music-bar {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to top, #9b4d6a, #c9a962);
+  transform-origin: bottom;
+  animation: noir-music-bar 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes noir-music-bar {
+  0% { transform: scaleY(0.35); opacity: 0.55; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
