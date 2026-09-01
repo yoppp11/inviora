@@ -75,6 +75,7 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/inviora?sslmode=require
 | Variable | Contoh production | Wajib |
 |----------|-------------------|-------|
 | `NEXT_API_URL` | `https://inviora-api.onrender.com/api` | ✅ |
+| `NEXT_PUBLIC_SITE_URL` | `https://domain-anda.com` | ✅ (untuk preview link & favicon) |
 
 ### Generate JWT_SECRET
 
