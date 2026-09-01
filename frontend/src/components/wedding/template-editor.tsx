@@ -152,14 +152,14 @@ export function TemplateEditor({ weddingId }: { weddingId: string }) {
           bride: { name: wedding?.brideName },
         },
         event: {
-          countdownDate: wedding?.weddingDate,
+          countdownDate: wedding?.weddingDate ?? undefined,
           ceremony: {
-            venue: wedding?.venueName,
-            address: wedding?.venueAddress,
-            time: wedding?.ceremonyTime,
+            ...(wedding?.venueName ? { venue: wedding.venueName } : {}),
+            ...(wedding?.venueAddress ? { address: wedding.venueAddress } : {}),
+            ...(wedding?.ceremonyTime ? { time: wedding.ceremonyTime } : {}),
           },
           reception: {
-            time: wedding?.receptionTime,
+            ...(wedding?.receptionTime ? { time: wedding.receptionTime } : {}),
           },
         },
       });

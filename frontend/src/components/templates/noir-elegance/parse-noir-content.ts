@@ -33,12 +33,27 @@ function isLegacyStory(content: NoirEleganceContent) {
   );
 }
 
+function stripNulls<T>(value: T): T {
+  if (value === null) {
+    return undefined as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => stripNulls(item)) as T;
+  }
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [key, stripNulls(nested)])
+    ) as T;
+  }
+  return value;
+}
+
 export function getDefaultNoirContent(): NoirEleganceContent {
   return noirEleganceSchema.parse({});
 }
 
 export function parseNoirContent(raw: unknown): NoirEleganceContent {
-  const parsed = noirEleganceSchema.parse(raw || {});
+  const parsed = noirEleganceSchema.parse(stripNulls(raw || {}));
   const defaults = getDefaultNoirContent();
 
   if (isLegacyVerse(parsed)) {
