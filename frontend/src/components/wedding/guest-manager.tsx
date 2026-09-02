@@ -1,13 +1,18 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import Papa from 'papaparse';
 import { api } from '@/lib/api';
+import { pickContact, isContactPickerSupported } from '@/lib/contact-picker';
+import {
+  buildInvitationUrl,
+  buildInvitationWhatsAppMessage,
+  buildWhatsAppDeepLink,
+} from '@/lib/invitation-share';
 import type { Guest, CsvImportResult } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +44,7 @@ import {
   Check,
   AlertCircle,
   FileSpreadsheet,
+  MessageCircle,
 } from 'lucide-react';
 
 const guestSchema = z.object({
@@ -51,14 +57,35 @@ type GuestForm = z.infer<typeof guestSchema>;
 interface GuestManagerProps {
   weddingId: string;
   weddingSlug: string;
+  groomName: string;
+  brideName: string;
+  weddingDate?: string | null;
+  venueName?: string | null;
 }
 
-export function GuestManager({ weddingId, weddingSlug }: GuestManagerProps) {
+function isMobileViewport(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+}
+
+export function GuestManager({
+  weddingId,
+  weddingSlug,
+  groomName,
+  brideName,
+  weddingDate,
+  venueName,
+}: GuestManagerProps) {
   const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [editGuest, setEditGuest] = useState<Guest | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+  const [canSendViaWhatsApp, setCanSendViaWhatsApp] = useState(false);
+
+  useEffect(() => {
+    setCanSendViaWhatsApp(isMobileViewport() && isContactPickerSupported());
+  }, []);
 
   const { data: guests, isLoading } = useQuery({
     queryKey: ['guests', weddingId],
@@ -114,13 +141,80 @@ export function GuestManager({ weddingId, weddingSlug }: GuestManagerProps) {
   });
 
   const copyLink = (guest: Guest) => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${baseUrl}/invitation/${weddingSlug}/${guest.invitationToken}`;
+    const url = buildInvitationUrl(weddingSlug, guest.invitationToken);
     navigator.clipboard.writeText(url);
     setCopiedId(guest.id);
     toast.success('Invitation link copied!');
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  const sendViaWhatsApp = useCallback(
+    async (existingGuest?: Guest) => {
+      if (!isContactPickerSupported()) {
+        toast.error('Fitur import kontak hanya tersedia di browser mobile yang mendukung.');
+        return;
+      }
+
+      setIsSendingWhatsApp(true);
+      try {
+        const contact = await pickContact();
+
+        let guest = existingGuest;
+        if (!guest) {
+          const matchedGuest = guests?.find(
+            (g) => g.name.trim().toLowerCase() === contact.name.trim().toLowerCase()
+          );
+          if (matchedGuest) {
+            guest = matchedGuest;
+          } else {
+            const { data } = await api.post(`/weddings/${weddingId}/guests`, {
+              name: contact.name,
+            });
+            guest = data.data as Guest;
+            queryClient.invalidateQueries({ queryKey: ['guests', weddingId] });
+            queryClient.invalidateQueries({ queryKey: ['wedding', weddingId] });
+          }
+        }
+
+        const invitationUrl = buildInvitationUrl(weddingSlug, guest.invitationToken);
+        const message = buildInvitationWhatsAppMessage({
+          guestName: contact.name,
+          groomName,
+          brideName,
+          invitationUrl,
+          weddingDate,
+          venueName,
+        });
+        const whatsappUrl = buildWhatsAppDeepLink(contact.phone, message);
+
+        window.location.href = whatsappUrl;
+      } catch (err) {
+        if (err instanceof Error) {
+          switch (err.message) {
+            case 'CONTACT_PICKER_UNSUPPORTED':
+              toast.error('Browser ini tidak mendukung import kontak.');
+              break;
+            case 'CONTACT_PICKER_CANCELLED':
+              break;
+            case 'CONTACT_NAME_MISSING':
+              toast.error('Kontak harus memiliki nama.');
+              break;
+            case 'CONTACT_PHONE_MISSING':
+              toast.error('Kontak harus memiliki nomor telepon.');
+              break;
+            case 'INVALID_PHONE':
+              toast.error('Nomor telepon kontak tidak valid.');
+              break;
+            default:
+              toast.error(err.message || 'Gagal mengirim undangan via WhatsApp.');
+          }
+        }
+      } finally {
+        setIsSendingWhatsApp(false);
+      }
+    },
+    [guests, weddingId, weddingSlug, groomName, brideName, weddingDate, venueName, queryClient]
+  );
 
   if (isLoading) {
     return (
@@ -141,6 +235,17 @@ export function GuestManager({ weddingId, weddingSlug }: GuestManagerProps) {
           </p>
         </div>
         <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
+          {canSendViaWhatsApp && (
+            <Button
+              variant="outline"
+              onClick={() => sendViaWhatsApp()}
+              disabled={isSendingWhatsApp}
+              className="w-full sm:w-auto border-green-600/40 text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              {isSendingWhatsApp ? 'Memproses...' : 'Kirim via WhatsApp'}
+            </Button>
+          )}
           <Button variant="outline" onClick={() => setImportOpen(true)} className="w-full sm:w-auto">
             <Upload className="h-4 w-4 mr-2" />
             Import CSV
@@ -242,10 +347,22 @@ export function GuestManager({ weddingId, weddingSlug }: GuestManagerProps) {
                     <p className="text-sm text-muted-foreground">{guest.address || 'No address'}</p>
                   </div>
                   <div className="flex gap-2">
+                    {canSendViaWhatsApp && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-green-600/40 text-green-700 dark:text-green-400"
+                        onClick={() => sendViaWhatsApp(guest)}
+                        disabled={isSendingWhatsApp}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        Kirim WA
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className={canSendViaWhatsApp ? '' : 'flex-1'}
                       onClick={() => copyLink(guest)}
                     >
                       {copiedId === guest.id ? (

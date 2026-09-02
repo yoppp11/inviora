@@ -134,6 +134,25 @@
   border-color: rgba(201, 169, 98, 0.55);
 }
 
+.noir-transfer-date-input {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.noir-transfer-date-input::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+}
+
+.noir-transfer-date-input::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
+  opacity: 0.7;
+}
+
 .noir-transfer-upload {
   background-color: #242424;
   border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -179,13 +198,13 @@
 .noir-music-bars {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 18px;
+  gap: 2px;
+  height: 12px;
 }
 
 .noir-music-bar {
   display: block;
-  width: 3px;
+  width: 2px;
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(to top, #9b4d6a, #c9a962);

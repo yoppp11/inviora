@@ -89,7 +89,14 @@ export default function EventPage() {
         </TabsContent>
 
         <TabsContent value="guests" className="mt-4 sm:mt-6">
-          <GuestManager weddingId={eventId} weddingSlug={wedding.slug} />
+          <GuestManager
+            weddingId={eventId}
+            weddingSlug={wedding.slug}
+            groomName={wedding.groomName}
+            brideName={wedding.brideName}
+            weddingDate={wedding.weddingDate}
+            venueName={wedding.venueName}
+          />
         </TabsContent>
 
         <TabsContent value="transfers" className="mt-4 sm:mt-6">

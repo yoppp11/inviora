@@ -197,7 +197,7 @@ export function TransferConfirmationForm({
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <label className="block space-y-1">
+            <label className="block min-w-0 space-y-1">
               <span className="text-[9px] uppercase tracking-[1px] opacity-70">Nominal</span>
               <input
                 value={amount}
@@ -207,13 +207,13 @@ export function TransferConfirmationForm({
                 className={inputClassName}
               />
             </label>
-            <label className="block space-y-1">
+            <label className="block min-w-0 space-y-1">
               <span className="text-[9px] uppercase tracking-[1px] opacity-70">Tanggal Transfer</span>
               <input
                 type="date"
                 value={transferDate}
                 onChange={(e) => setTransferDate(e.target.value)}
-                className={inputClassName}
+                className={`${inputClassName} noir-transfer-date-input`}
               />
             </label>
           </div>
