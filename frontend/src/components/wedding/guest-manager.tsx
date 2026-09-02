@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import { pickContact, isContactPickerSupported } from '@/lib/contact-picker';
+import { pickContact, isContactPickerSupported, type PickedContact } from '@/lib/contact-picker';
 import {
   buildInvitationUrl,
   buildInvitationWhatsAppMessage,
@@ -81,10 +81,12 @@ export function GuestManager({
   const [importOpen, setImportOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
-  const [canSendViaWhatsApp, setCanSendViaWhatsApp] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [whatsAppDialogOpen, setWhatsAppDialogOpen] = useState(false);
+  const [whatsAppGuestContext, setWhatsAppGuestContext] = useState<Guest | undefined>();
 
   useEffect(() => {
-    setCanSendViaWhatsApp(isMobileViewport() && isContactPickerSupported());
+    setIsMobile(isMobileViewport());
   }, []);
 
   const { data: guests, isLoading } = useQuery({
@@ -148,51 +150,59 @@ export function GuestManager({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const deliverWhatsAppInvitation = useCallback(
+    async (contact: PickedContact, existingGuest?: Guest) => {
+      let guest = existingGuest;
+      if (!guest) {
+        const matchedGuest = guests?.find(
+          (g) => g.name.trim().toLowerCase() === contact.name.trim().toLowerCase()
+        );
+        if (matchedGuest) {
+          guest = matchedGuest;
+        } else {
+          const { data } = await api.post(`/weddings/${weddingId}/guests`, {
+            name: contact.name,
+          });
+          guest = data.data as Guest;
+          queryClient.invalidateQueries({ queryKey: ['guests', weddingId] });
+          queryClient.invalidateQueries({ queryKey: ['wedding', weddingId] });
+        }
+      }
+
+      const invitationUrl = buildInvitationUrl(weddingSlug, guest.invitationToken);
+      const message = buildInvitationWhatsAppMessage({
+        guestName: contact.name,
+        groomName,
+        brideName,
+        invitationUrl,
+        weddingDate,
+        venueName,
+      });
+      const whatsappUrl = buildWhatsAppDeepLink(contact.phone, message);
+
+      window.location.href = whatsappUrl;
+    },
+    [guests, weddingId, weddingSlug, groomName, brideName, weddingDate, venueName, queryClient]
+  );
+
   const sendViaWhatsApp = useCallback(
     async (existingGuest?: Guest) => {
       if (!isContactPickerSupported()) {
-        toast.error('Fitur import kontak hanya tersedia di browser mobile yang mendukung.');
+        setWhatsAppGuestContext(existingGuest);
+        setWhatsAppDialogOpen(true);
         return;
       }
 
       setIsSendingWhatsApp(true);
       try {
         const contact = await pickContact();
-
-        let guest = existingGuest;
-        if (!guest) {
-          const matchedGuest = guests?.find(
-            (g) => g.name.trim().toLowerCase() === contact.name.trim().toLowerCase()
-          );
-          if (matchedGuest) {
-            guest = matchedGuest;
-          } else {
-            const { data } = await api.post(`/weddings/${weddingId}/guests`, {
-              name: contact.name,
-            });
-            guest = data.data as Guest;
-            queryClient.invalidateQueries({ queryKey: ['guests', weddingId] });
-            queryClient.invalidateQueries({ queryKey: ['wedding', weddingId] });
-          }
-        }
-
-        const invitationUrl = buildInvitationUrl(weddingSlug, guest.invitationToken);
-        const message = buildInvitationWhatsAppMessage({
-          guestName: contact.name,
-          groomName,
-          brideName,
-          invitationUrl,
-          weddingDate,
-          venueName,
-        });
-        const whatsappUrl = buildWhatsAppDeepLink(contact.phone, message);
-
-        window.location.href = whatsappUrl;
+        await deliverWhatsAppInvitation(contact, existingGuest);
       } catch (err) {
         if (err instanceof Error) {
           switch (err.message) {
             case 'CONTACT_PICKER_UNSUPPORTED':
-              toast.error('Browser ini tidak mendukung import kontak.');
+              setWhatsAppGuestContext(existingGuest);
+              setWhatsAppDialogOpen(true);
               break;
             case 'CONTACT_PICKER_CANCELLED':
               break;
@@ -213,7 +223,29 @@ export function GuestManager({
         setIsSendingWhatsApp(false);
       }
     },
-    [guests, weddingId, weddingSlug, groomName, brideName, weddingDate, venueName, queryClient]
+    [deliverWhatsAppInvitation]
+  );
+
+  const handleWhatsAppManualSubmit = useCallback(
+    async (contact: PickedContact) => {
+      setIsSendingWhatsApp(true);
+      try {
+        await deliverWhatsAppInvitation(contact, whatsAppGuestContext);
+        setWhatsAppDialogOpen(false);
+        setWhatsAppGuestContext(undefined);
+      } catch (err) {
+        if (err instanceof Error && err.message === 'INVALID_PHONE') {
+          toast.error('Nomor telepon tidak valid.');
+        } else {
+          toast.error(
+            err instanceof Error ? err.message : 'Gagal mengirim undangan via WhatsApp.'
+          );
+        }
+      } finally {
+        setIsSendingWhatsApp(false);
+      }
+    },
+    [deliverWhatsAppInvitation, whatsAppGuestContext]
   );
 
   if (isLoading) {
@@ -235,7 +267,7 @@ export function GuestManager({
           </p>
         </div>
         <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
-          {canSendViaWhatsApp && (
+          {isMobile && (
             <Button
               variant="outline"
               onClick={() => sendViaWhatsApp()}
@@ -263,7 +295,19 @@ export function GuestManager({
             <p className="text-muted-foreground mb-4">
               No guests added yet
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+              {isMobile && (
+                <Button
+                  variant="outline"
+                  onClick={() => sendViaWhatsApp()}
+                  disabled={isSendingWhatsApp}
+                  className="border-green-600/40 text-green-700 dark:text-green-400"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Kirim via WhatsApp
+                </Button>
+              )}
+              <div className="flex gap-2">
               <Button variant="outline" onClick={() => setImportOpen(true)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV
@@ -272,6 +316,7 @@ export function GuestManager({
                 <Plus className="h-4 w-4 mr-2" />
                 Add Guest
               </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -347,7 +392,7 @@ export function GuestManager({
                     <p className="text-sm text-muted-foreground">{guest.address || 'No address'}</p>
                   </div>
                   <div className="flex gap-2">
-                    {canSendViaWhatsApp && (
+                    {isMobile && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -362,7 +407,7 @@ export function GuestManager({
                     <Button
                       variant="outline"
                       size="sm"
-                      className={canSendViaWhatsApp ? '' : 'flex-1'}
+                      className={isMobile ? '' : 'flex-1'}
                       onClick={() => copyLink(guest)}
                     >
                       {copiedId === guest.id ? (
@@ -422,7 +467,112 @@ export function GuestManager({
         onOpenChange={setImportOpen}
         weddingId={weddingId}
       />
+
+      <WhatsAppRecipientDialog
+        open={whatsAppDialogOpen}
+        onOpenChange={(open) => {
+          setWhatsAppDialogOpen(open);
+          if (!open) setWhatsAppGuestContext(undefined);
+        }}
+        defaultName={whatsAppGuestContext?.name}
+        isLoading={isSendingWhatsApp}
+        onSubmit={handleWhatsAppManualSubmit}
+      />
     </div>
+  );
+}
+
+const whatsAppRecipientSchema = z.object({
+  name: z.string().min(1, 'Nama wajib diisi'),
+  phone: z.string().min(8, 'Nomor WhatsApp wajib diisi'),
+});
+
+type WhatsAppRecipientForm = z.infer<typeof whatsAppRecipientSchema>;
+
+function WhatsAppRecipientDialog({
+  open,
+  onOpenChange,
+  defaultName,
+  isLoading,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  defaultName?: string;
+  isLoading: boolean;
+  onSubmit: (contact: PickedContact) => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<WhatsAppRecipientForm>({
+    resolver: zodResolver(whatsAppRecipientSchema),
+    defaultValues: { name: defaultName || '', phone: '' },
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset({ name: defaultName || '', phone: '' });
+    }
+  }, [open, defaultName, reset]);
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        onOpenChange(o);
+        if (!o) reset({ name: '', phone: '' });
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Kirim Undangan via WhatsApp</DialogTitle>
+          <DialogDescription>
+            Safari tidak mendukung import kontak langsung. Isi nama dan nomor WhatsApp penerima
+            undangan, lalu pesan siap kirim akan dibuka di WhatsApp.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          onSubmit={handleSubmit((data) => {
+            onSubmit({ name: data.name.trim(), phone: data.phone.trim() });
+            reset({ name: '', phone: '' });
+          })}
+          className="space-y-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="waRecipientName">Nama Penerima</Label>
+            <Input
+              id="waRecipientName"
+              autoComplete="name"
+              placeholder="Contoh: Budi Santoso"
+              {...register('name')}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="waRecipientPhone">Nomor WhatsApp</Label>
+            <Input
+              id="waRecipientPhone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="Contoh: 081234567890"
+              {...register('phone')}
+            />
+            {errors.phone && (
+              <p className="text-sm text-destructive">{errors.phone.message}</p>
+            )}
+          </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Memproses...' : 'Buka WhatsApp'}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
