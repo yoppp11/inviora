@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const TEMPLATE_KEYS = ['elegant', 'minimal', 'floral', 'noir-elegance'] as const;
+export const TEMPLATE_KEYS = ['elegant', 'minimal', 'floral', 'noir-elegance', 'calla-bloom'] as const;
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
 export const templateConfigSchema = z.object({
@@ -18,6 +18,7 @@ export const templateConfigSchema = z.object({
   musicEnabled: z.boolean().optional().nullable(),
   musicUrl: z.string().max(2000).optional().nullable(),
   noirContent: z.record(z.unknown()).optional().nullable(),
+  callaContent: z.record(z.unknown()).optional().nullable(),
 }).passthrough();
 
 export const updateTemplateSchema = z.object({

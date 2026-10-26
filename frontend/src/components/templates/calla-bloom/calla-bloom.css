@@ -1,0 +1,717 @@
+/*
+ * Calla Bloom template styles. Everything is scoped under `.calla-bloom` and every
+ * keyframe / helper class is prefixed with `cb-` so nothing leaks into other templates.
+ *
+ * Layout is authored in a 576-unit design space (the width of the reference).
+ * `--cb-u` is one design unit; it is resolved with container query units against
+ * `.cb-column`, so the whole composition scales with the column width.
+ */
+
+.calla-bloom {
+  --cb-olive: #87924e;
+  --cb-maroon: #39020f;
+  --cb-wine: #2d0609;
+  --cb-ink: #1f0a0e;
+  /* Fallback for browsers without container query units (older phones). */
+  --cb-u: calc(min(100vw, 576px) / 576);
+
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: #ffffff;
+  color: var(--cb-ink);
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+@supports (width: 1cqw) {
+  .calla-bloom {
+    --cb-u: calc(100cqw / 576);
+  }
+}
+
+.calla-bloom .cb-column {
+  position: relative;
+  width: 100%;
+  max-width: 576px;
+  margin: 0 auto;
+  container-type: inline-size;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.calla-bloom .cb-sec {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.calla-bloom .cb-abs {
+  position: absolute;
+}
+
+.calla-bloom .cb-img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* ---------- typography ---------- */
+
+.calla-bloom .cb-t {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.calla-bloom .cb-hand {
+  font-family: var(--cb-font-hand), 'Single Day', cursive;
+  /* Single Day ships a single weight; the reference text is visibly heavier. */
+  font-weight: 400;
+  /*
+   * The reference lettering is heavier than Single Day Regular but lighter than a
+   * synthesised bold, so a hairline stroke is used to thicken it.
+   */
+  -webkit-text-stroke: 0.016em currentColor;
+}
+
+.calla-bloom .cb-hand.cb-white {
+  -webkit-text-stroke: 0;
+}
+
+.calla-bloom .cb-sans {
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-weight: 400;
+}
+
+.calla-bloom .cb-ink {
+  color: var(--cb-ink);
+}
+.calla-bloom .cb-light {
+  font-weight: 300;
+}
+.calla-bloom .cb-olive {
+  color: var(--cb-olive);
+}
+.calla-bloom .cb-maroon {
+  color: var(--cb-maroon);
+}
+.calla-bloom .cb-white {
+  color: #ffffff;
+}
+
+.calla-bloom .cb-word {
+  display: inline-block;
+}
+
+/* ---------- corduroy ---------- */
+
+.calla-bloom .cb-cord {
+  background-color: var(--cb-wine);
+  background-image: url('/templates/calla-bloom/corduroy.png');
+  background-size: calc(48 * var(--cb-u)) calc(4 * var(--cb-u));
+  background-repeat: repeat;
+}
+
+/* ---------- hero entrance (plays once on load) ---------- */
+
+.calla-bloom .cb-in-rise {
+  animation: cb-rise 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-in-soft {
+  animation: cb-soft 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-in-wipe {
+  animation: cb-wipe var(--cb-t, 0.5s) cubic-bezier(0.22, 0.8, 0.3, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-in-fade {
+  animation: cb-fade var(--cb-t, 0.5s) ease-out both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-in-pop {
+  animation: cb-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--cb-d, 0s);
+  transform-origin: 50% 50%;
+}
+
+@keyframes cb-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(70 * var(--cb-u)));
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cb-soft {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(14 * var(--cb-u)));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cb-wipe {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 -2% 0);
+  }
+}
+
+@keyframes cb-from-left {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(-46 * var(--cb-u)));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cb-from-right {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(46 * var(--cb-u)));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cb-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes cb-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------- scroll reveal (every element below the hero) ----------
+ * Elements start hidden and get `data-cb-seen` from an IntersectionObserver the first
+ * time they scroll into view; the matching keyframes then play once. */
+
+.calla-bloom .cb-rv {
+  opacity: 0;
+}
+/* Note: wipes are hidden with opacity only. A clip-path would also make the element
+   report zero visible area to the IntersectionObserver, so it would never be revealed. */
+.calla-bloom .cb-rv[data-cb-seen] {
+  animation-delay: var(--cb-d, 0s);
+  animation-fill-mode: both;
+}
+.calla-bloom .cb-rv-rise[data-cb-seen] {
+  animation: cb-rise var(--cb-t, 0.8s) cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-rv-soft[data-cb-seen] {
+  animation: cb-soft var(--cb-t, 0.7s) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-rv-wipe[data-cb-seen] {
+  animation: cb-wipe var(--cb-t, 0.7s) cubic-bezier(0.22, 0.8, 0.3, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-rv-fade[data-cb-seen] {
+  animation: cb-fade var(--cb-t, 0.7s) ease-out both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-rv-pop[data-cb-seen] {
+  animation: cb-pop var(--cb-t, 0.55s) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--cb-d, 0s);
+  transform-origin: 50% 50%;
+}
+.calla-bloom .cb-rv-left[data-cb-seen] {
+  animation: cb-from-left var(--cb-t, 0.85s) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+.calla-bloom .cb-rv-right[data-cb-seen] {
+  animation: cb-from-right var(--cb-t, 0.85s) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--cb-d, 0s);
+}
+
+/* Without JavaScript nothing would ever reveal the elements, so show them. */
+@media (scripting: none) {
+  .calla-bloom .cb-rv {
+    opacity: 1;
+    clip-path: none;
+  }
+}
+
+/* ---------- map (the iframe never captures touch scrolling) ---------- */
+
+.calla-bloom .cb-map-link {
+  position: absolute;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+.calla-bloom .cb-map-link:focus-visible {
+  outline: 2px solid var(--cb-olive);
+  outline-offset: 3px;
+}
+
+/* ---------- music star ---------- */
+
+.calla-bloom .cb-music {
+  position: absolute;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.calla-bloom .cb-music,
+.calla-bloom .cb-copy,
+.calla-bloom .cb-map-link {
+  touch-action: manipulation;
+}
+.calla-bloom .cb-music:focus-visible {
+  outline: 2px solid var(--cb-maroon);
+  outline-offset: 4px;
+}
+
+/* ---------- calendar ---------- */
+
+.calla-bloom .cb-cal-cell {
+  position: absolute;
+  width: calc(40 * var(--cb-u));
+  margin-left: calc(-20 * var(--cb-u));
+  text-align: center;
+  line-height: 1;
+  color: #ffffff;
+  white-space: nowrap;
+  font-weight: 300;
+}
+
+/* ---------- gift cards ---------- */
+
+.calla-bloom .cb-copy {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.calla-bloom .cb-copy:focus-visible {
+  outline: 2px solid var(--cb-olive);
+  outline-offset: 2px;
+}
+
+/* ---------- transfer confirmation ---------- */
+
+.calla-bloom .cb-transfer-sec {
+  padding: calc(76 * var(--cb-u)) calc(58 * var(--cb-u)) calc(88 * var(--cb-u));
+}
+
+.calla-bloom .cb-transfer-lily {
+  left: calc(-44 * var(--cb-u));
+  bottom: calc(-18 * var(--cb-u));
+  width: calc(194 * var(--cb-u));
+  height: calc(245 * var(--cb-u));
+  z-index: 0;
+}
+
+/* Double-rule card, the same frame the bank cards use, but it grows with the form. */
+.calla-bloom .cb-transfer-card {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  padding: calc(32 * var(--cb-u)) calc(30 * var(--cb-u)) calc(30 * var(--cb-u));
+  background: #ffffff;
+  border: calc(1 * var(--cb-u)) solid #a9b08c;
+  border-radius: calc(11 * var(--cb-u));
+  box-shadow: 0 calc(10 * var(--cb-u)) calc(24 * var(--cb-u)) rgba(57, 2, 15, 0.06);
+  text-align: left;
+}
+
+.calla-bloom .cb-transfer-card::before {
+  content: '';
+  position: absolute;
+  inset: calc(5 * var(--cb-u));
+  border: calc(0.8 * var(--cb-u)) solid rgba(169, 176, 140, 0.7);
+  border-radius: calc(7 * var(--cb-u));
+  pointer-events: none;
+}
+
+.calla-bloom .cb-transfer-head {
+  text-align: center;
+}
+
+.calla-bloom .cb-transfer-title {
+  margin: 0;
+  font-family: var(--cb-font-hand), 'Single Day', cursive;
+  font-weight: 400;
+  font-size: max(calc(42 * var(--cb-u)), 30px);
+  line-height: 1.05;
+  color: var(--cb-olive);
+  -webkit-text-stroke: 0.016em currentColor;
+}
+
+.calla-bloom .cb-transfer-desc {
+  margin: calc(8 * var(--cb-u)) 0 0;
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: max(calc(13 * var(--cb-u)), 11.5px);
+  line-height: 1.65;
+  color: var(--cb-ink);
+}
+
+.calla-bloom .cb-transfer-fields {
+  display: grid;
+  gap: calc(14 * var(--cb-u));
+  margin-top: calc(22 * var(--cb-u));
+}
+
+.calla-bloom .cb-transfer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(12 * var(--cb-u));
+}
+
+.calla-bloom .cb-transfer-field {
+  min-width: 0;
+}
+
+.calla-bloom .cb-transfer-label {
+  display: block;
+  margin-bottom: calc(6 * var(--cb-u));
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(10.5 * var(--cb-u)), 9.5px);
+  letter-spacing: calc(1.1 * var(--cb-u));
+  text-transform: uppercase;
+  color: var(--cb-maroon);
+  opacity: 0.72;
+}
+
+.calla-bloom .cb-transfer-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: max(calc(42 * var(--cb-u)), 42px);
+  padding: calc(9 * var(--cb-u)) calc(12 * var(--cb-u));
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(15 * var(--cb-u)), 16px);
+  line-height: 1.3;
+  color: var(--cb-ink);
+  background: #fbfaf5;
+  border: calc(1 * var(--cb-u)) solid rgba(169, 176, 140, 0.65);
+  border-radius: calc(6 * var(--cb-u));
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  touch-action: manipulation;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.calla-bloom .cb-transfer-input:focus {
+  border-color: var(--cb-olive);
+  background-color: #ffffff;
+}
+
+.calla-bloom .cb-transfer-input::placeholder {
+  color: rgba(31, 10, 14, 0.32);
+}
+
+.calla-bloom .cb-transfer-select {
+  padding-right: calc(30 * var(--cb-u));
+  background-image: linear-gradient(45deg, transparent 50%, #87924e 50%),
+    linear-gradient(135deg, #87924e 50%, transparent 50%);
+  background-position: calc(100% - 17 * var(--cb-u)) 55%, calc(100% - 12 * var(--cb-u)) 55%;
+  background-size: calc(5 * var(--cb-u)) calc(5 * var(--cb-u));
+  background-repeat: no-repeat;
+}
+
+.calla-bloom .cb-transfer-select option {
+  color: var(--cb-ink);
+  background: #ffffff;
+}
+
+.calla-bloom .cb-transfer-date {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.calla-bloom .cb-transfer-date::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+}
+
+.calla-bloom .cb-transfer-date::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
+  opacity: 0.55;
+}
+
+.calla-bloom .cb-transfer-textarea {
+  min-height: max(calc(62 * var(--cb-u)), 58px);
+  resize: none;
+}
+
+.calla-bloom .cb-transfer-file {
+  display: none;
+}
+
+.calla-bloom .cb-transfer-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6 * var(--cb-u));
+  box-sizing: border-box;
+  width: 100%;
+  min-height: max(calc(92 * var(--cb-u)), 88px);
+  padding: calc(14 * var(--cb-u));
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(12 * var(--cb-u)), 11px);
+  color: var(--cb-olive);
+  background: #fbfaf5;
+  border: calc(1 * var(--cb-u)) dashed rgba(135, 146, 78, 0.65);
+  border-radius: calc(6 * var(--cb-u));
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.calla-bloom .cb-transfer-upload:hover,
+.calla-bloom .cb-transfer-upload:focus-visible {
+  background: #ffffff;
+  border-color: var(--cb-olive);
+}
+
+.calla-bloom .cb-transfer-upload svg {
+  width: max(calc(20 * var(--cb-u)), 18px);
+  height: auto;
+}
+
+.calla-bloom .cb-transfer-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10 * var(--cb-u));
+  padding: calc(12 * var(--cb-u));
+  background: #fbfaf5;
+  border: calc(1 * var(--cb-u)) solid rgba(169, 176, 140, 0.65);
+  border-radius: calc(6 * var(--cb-u));
+}
+
+.calla-bloom .cb-transfer-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: max(calc(150 * var(--cb-u)), 130px);
+  border-radius: calc(4 * var(--cb-u));
+  object-fit: contain;
+}
+
+.calla-bloom .cb-transfer-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--cb-u));
+}
+
+.calla-bloom .cb-transfer-ghost,
+.calla-bloom .cb-transfer-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(11 * var(--cb-u)), 10.5px);
+  letter-spacing: calc(1 * var(--cb-u));
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.calla-bloom .cb-transfer-ghost {
+  min-height: max(calc(38 * var(--cb-u)), 38px);
+  padding: 0 calc(18 * var(--cb-u));
+  color: var(--cb-olive);
+  background: #ffffff;
+  border: calc(1 * var(--cb-u)) solid rgba(135, 146, 78, 0.55);
+  border-radius: 999px;
+}
+
+.calla-bloom .cb-transfer-remove {
+  width: max(calc(38 * var(--cb-u)), 38px);
+  height: max(calc(38 * var(--cb-u)), 38px);
+  padding: 0;
+  color: var(--cb-maroon);
+  background: #ffffff;
+  border: calc(1 * var(--cb-u)) solid rgba(169, 176, 140, 0.65);
+  border-radius: 999px;
+}
+
+.calla-bloom .cb-transfer-remove svg {
+  width: max(calc(15 * var(--cb-u)), 14px);
+  height: auto;
+}
+
+.calla-bloom .cb-transfer-error {
+  margin: calc(12 * var(--cb-u)) 0 0;
+  font-size: max(calc(12 * var(--cb-u)), 11px);
+  line-height: 1.5;
+  text-align: center;
+  color: #a3232f;
+}
+
+.calla-bloom .cb-transfer-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--cb-u));
+  box-sizing: border-box;
+  width: 100%;
+  min-height: max(calc(46 * var(--cb-u)), 44px);
+  margin-top: calc(20 * var(--cb-u));
+  padding: 0 calc(16 * var(--cb-u));
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(12.5 * var(--cb-u)), 12px);
+  letter-spacing: calc(2 * var(--cb-u));
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: var(--cb-wine);
+  background-image: url('/templates/calla-bloom/corduroy.png');
+  background-size: calc(48 * var(--cb-u)) calc(4 * var(--cb-u));
+  background-repeat: repeat;
+  border: 0;
+  border-radius: calc(8 * var(--cb-u));
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.calla-bloom .cb-transfer-submit:hover:not(:disabled) {
+  background-color: var(--cb-maroon);
+}
+
+.calla-bloom .cb-transfer-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.calla-bloom .cb-transfer-submit svg {
+  width: max(calc(15 * var(--cb-u)), 14px);
+  height: auto;
+}
+
+.calla-bloom .cb-transfer-spin {
+  animation: cb-transfer-spin 0.9s linear infinite;
+}
+
+@keyframes cb-transfer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.calla-bloom .cb-transfer-success {
+  padding: calc(10 * var(--cb-u)) calc(4 * var(--cb-u));
+  text-align: center;
+}
+
+.calla-bloom .cb-transfer-success-icon {
+  width: max(calc(34 * var(--cb-u)), 30px);
+  height: auto;
+  margin: 0 auto calc(10 * var(--cb-u));
+  color: var(--cb-olive);
+}
+
+.calla-bloom .cb-transfer-success-text {
+  margin: 0;
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: max(calc(13.5 * var(--cb-u)), 12px);
+  line-height: 1.6;
+  color: var(--cb-ink);
+}
+
+.calla-bloom .cb-transfer-success-note {
+  margin: calc(10 * var(--cb-u)) 0 0;
+  font-size: max(calc(10.5 * var(--cb-u)), 9.5px);
+  letter-spacing: calc(1.2 * var(--cb-u));
+  text-transform: uppercase;
+  color: var(--cb-maroon);
+  opacity: 0.6;
+}
+
+/* ---------- map ---------- */
+
+.calla-bloom .cb-map {
+  position: absolute;
+  border: 0;
+  display: block;
+  background: #dfe5dc;
+}
+
+/* ---------- reduced motion: show the final state, no entrance animation ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .calla-bloom .cb-in-rise,
+  .calla-bloom .cb-in-soft,
+  .calla-bloom .cb-in-wipe,
+  .calla-bloom .cb-in-fade,
+  .calla-bloom .cb-in-pop {
+    animation: none;
+  }
+  .calla-bloom .cb-rv {
+    opacity: 1;
+    clip-path: none;
+  }
+  .calla-bloom .cb-rv[data-cb-seen] {
+    animation: none;
+  }
+}

@@ -17,6 +17,8 @@ import { Upload, X, ImageIcon, Check } from 'lucide-react';
 import { WebsiteContentForm } from '@/components/wedding/website-content-form';
 import { noirEleganceSchema } from '@/components/templates/noir-elegance/schema';
 import { parseNoirContent } from '@/components/templates/noir-elegance/parse-noir-content';
+import { callaBloomSchema } from '@/components/templates/calla-bloom/schema';
+import { parseCallaContent } from '@/components/templates/calla-bloom/parse-calla-content';
 
 const TEMPLATE_OPTIONS: { key: TemplateKey; label: string; description: string }[] = [
   { key: 'elegant', label: 'Elegant', description: 'Classic and sophisticated design' },
@@ -26,6 +28,11 @@ const TEMPLATE_OPTIONS: { key: TemplateKey; label: string; description: string }
     key: 'noir-elegance',
     label: 'Noir Elegance',
     description: 'Dark cinematic split-screen with scroll-snap sections',
+  },
+  {
+    key: 'calla-bloom',
+    label: 'Calla Bloom',
+    description: 'Hand-lettered olive and wine design with pearls, calla lilies and a disco calendar',
   },
 ];
 
@@ -71,6 +78,9 @@ export function TemplateEditor({ weddingId }: { weddingId: string }) {
 
   const config = (templateConfig?.config || {}) as Record<string, unknown>;
   const isNoirElegance = templateConfig?.templateKey === 'noir-elegance';
+  const isCallaBloom = templateConfig?.templateKey === 'calla-bloom';
+
+  const callaContentDefaults = useMemo(() => parseCallaContent(config.callaContent || {}), [config.callaContent]);
 
   const noirContentDefaults = useMemo(() => {
     try {
@@ -213,7 +223,30 @@ export function TemplateEditor({ weddingId }: { weddingId: string }) {
         </CardContent>
       </Card>
 
-      {isNoirElegance ? (
+      {isCallaBloom ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Template Content</CardTitle>
+            <CardDescription>
+              Customize the text of your Calla Bloom invitation. Names, date, times and venue are
+              taken from the event details when left empty. Music is configured below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WebsiteContentForm
+              schema={callaBloomSchema}
+              defaultValues={callaContentDefaults as Record<string, unknown>}
+              weddingId={weddingId}
+              isSubmitting={updateMutation.isPending}
+              onSubmit={async (callaContent) => {
+                await updateMutation.mutateAsync({
+                  config: { ...config, callaContent },
+                });
+              }}
+            />
+          </CardContent>
+        </Card>
+      ) : isNoirElegance ? (
         <Card>
           <CardHeader>
             <CardTitle>Template Content</CardTitle>

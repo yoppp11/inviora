@@ -5,6 +5,7 @@ import { ElegantTemplate } from '@/components/templates/elegant';
 import { MinimalTemplate } from '@/components/templates/minimal';
 import { FloralTemplate } from '@/components/templates/floral';
 import { NoirEleganceTemplate } from '@/components/templates/noir-elegance';
+import { CallaBloomTemplate } from '@/components/templates/calla-bloom';
 import { TemplateMusicWrapper } from '@/components/wedding/template-music-wrapper';
 
 interface TemplateRendererProps {
@@ -16,9 +17,10 @@ const templateMap: Record<TemplateKey, React.ComponentType<{ data: InvitationDat
   minimal: MinimalTemplate,
   floral: FloralTemplate,
   'noir-elegance': NoirEleganceTemplate,
+  'calla-bloom': CallaBloomTemplate,
 };
 
-const SELF_MANAGED_MUSIC: TemplateKey[] = ['noir-elegance'];
+const SELF_MANAGED_MUSIC: TemplateKey[] = ['noir-elegance', 'calla-bloom'];
 
 export function TemplateRenderer({ data }: TemplateRendererProps) {
   const TemplateComponent = templateMap[data.template.key] || ElegantTemplate;

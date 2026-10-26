@@ -48,7 +48,7 @@ export interface Guest {
   updatedAt: string;
 }
 
-export type TemplateKey = 'elegant' | 'minimal' | 'floral' | 'noir-elegance';
+export type TemplateKey = 'elegant' | 'minimal' | 'floral' | 'noir-elegance' | 'calla-bloom';
 
 export interface TemplateConfigData {
   heroImage?: string | null;
@@ -65,6 +65,7 @@ export interface TemplateConfigData {
   musicEnabled?: boolean | null;
   musicUrl?: string | null;
   noirContent?: Record<string, unknown> | null;
+  callaContent?: Record<string, unknown> | null;
   [key: string]: unknown;
 }
 
