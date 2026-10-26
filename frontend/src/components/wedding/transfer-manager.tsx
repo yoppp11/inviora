@@ -1,12 +1,17 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { TransferConfirmation } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ListPagination, ListSearch } from '@/components/wedding/list-controls';
 import { ExternalLink, Receipt } from 'lucide-react';
+
+const TRANSFER_PAGE_SIZE = 5;
 
 function formatAmount(amount: string | number | null | undefined) {
   if (amount === null || amount === undefined || amount === '') return '—';
@@ -31,6 +36,9 @@ function formatDate(value: string | null | undefined) {
 }
 
 export function TransferManager({ weddingId }: { weddingId: string }) {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
   const { data, isLoading } = useQuery({
     queryKey: ['transfer-confirmations', weddingId],
     queryFn: async () => {
@@ -38,6 +46,28 @@ export function TransferManager({ weddingId }: { weddingId: string }) {
       return res.data as TransferConfirmation[];
     },
   });
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const all = data ?? [];
+    if (!query) return all;
+    return all.filter((item) =>
+      [item.senderName, item.guestName, item.bankName, item.accountNumber, item.notes ?? '', String(item.amount ?? '')]
+        .some((value) => value.toLowerCase().includes(query))
+    );
+  }, [data, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / TRANSFER_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () => filtered.slice((currentPage - 1) * TRANSFER_PAGE_SIZE, currentPage * TRANSFER_PAGE_SIZE),
+    [filtered, currentPage]
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   if (isLoading) {
     return <Skeleton className="h-64 w-full" />;
@@ -56,14 +86,33 @@ export function TransferManager({ weddingId }: { weddingId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          {data.length} konfirmasi transfer diterima
+          {filtered.length !== data.length
+            ? `${filtered.length} dari ${data.length} konfirmasi transfer`
+            : `${data.length} konfirmasi transfer diterima`}
         </p>
+        <ListSearch
+          value={search}
+          onChange={handleSearchChange}
+          placeholder="Cari pengirim, tamu, atau bank"
+          label="Cari konfirmasi transfer"
+          className="sm:w-64"
+        />
       </div>
 
-      <div className="space-y-3">
-        {data.map((item) => (
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 p-8 text-center text-sm text-muted-foreground">
+            <p>Tidak ada konfirmasi yang cocok dengan &ldquo;{search.trim()}&rdquo;.</p>
+            <Button variant="outline" size="sm" onClick={() => handleSearchChange('')}>
+              Hapus pencarian
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {paged.map((item) => (
           <Card key={item.id}>
             <CardContent className="p-4 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
@@ -110,8 +159,18 @@ export function TransferManager({ weddingId }: { weddingId: string }) {
               </a>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      <ListPagination
+        page={currentPage}
+        totalPages={totalPages}
+        totalItems={filtered.length}
+        pageSize={TRANSFER_PAGE_SIZE}
+        onPageChange={setPage}
+        itemLabel="konfirmasi"
+      />
     </div>
   );
 }

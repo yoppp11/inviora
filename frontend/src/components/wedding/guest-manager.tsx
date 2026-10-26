@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,7 @@ import type { Guest, CsvImportResult } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ListPagination, ListSearch } from '@/components/wedding/list-controls';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +68,8 @@ function isMobileViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
 }
 
+const GUEST_PAGE_SIZE = 10;
+
 export function GuestManager({
   weddingId,
   weddingSlug,
@@ -84,6 +87,8 @@ export function GuestManager({
   const [isMobile, setIsMobile] = useState(false);
   const [whatsAppDialogOpen, setWhatsAppDialogOpen] = useState(false);
   const [whatsAppGuestContext, setWhatsAppGuestContext] = useState<Guest | undefined>();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setIsMobile(isMobileViewport());
@@ -141,6 +146,29 @@ export function GuestManager({
       toast.error(err.response?.data?.message || 'Failed to remove guest');
     },
   });
+
+  const filteredGuests = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const all = guests ?? [];
+    if (!query) return all;
+    return all.filter(
+      (guest) =>
+        guest.name.toLowerCase().includes(query) ||
+        (guest.address ?? '').toLowerCase().includes(query)
+    );
+  }, [guests, search]);
+
+  const guestTotalPages = Math.max(1, Math.ceil(filteredGuests.length / GUEST_PAGE_SIZE));
+  const currentPage = Math.min(page, guestTotalPages);
+  const pagedGuests = useMemo(
+    () => filteredGuests.slice((currentPage - 1) * GUEST_PAGE_SIZE, currentPage * GUEST_PAGE_SIZE),
+    [filteredGuests, currentPage]
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const copyLink = (guest: Guest) => {
     const url = buildInvitationUrl(weddingSlug, guest.invitationToken);
@@ -259,14 +287,21 @@ export function GuestManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Guest List</h2>
           <p className="text-sm text-muted-foreground">
             {guests?.length || 0} guests
           </p>
         </div>
-        <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <ListSearch
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search name or address"
+            label="Search guests"
+            className="sm:w-56"
+          />
           {isMobile && (
             <Button
               variant="outline"
@@ -320,6 +355,17 @@ export function GuestManager({
             </div>
           </CardContent>
         </Card>
+      ) : filteredGuests.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+            <p className="text-muted-foreground">
+              No guests match &ldquo;{search.trim()}&rdquo;
+            </p>
+            <Button variant="outline" size="sm" onClick={() => handleSearchChange('')}>
+              Clear search
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <>
           <div className="hidden md:block">
@@ -334,7 +380,7 @@ export function GuestManager({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {guests?.map((guest) => (
+                    {pagedGuests.map((guest) => (
                       <TableRow key={guest.id}>
                         <TableCell className="font-medium">{guest.name}</TableCell>
                         <TableCell className="text-muted-foreground">
@@ -384,7 +430,7 @@ export function GuestManager({
           </div>
 
           <div className="md:hidden space-y-3">
-            {guests?.map((guest) => (
+            {pagedGuests.map((guest) => (
               <Card key={guest.id}>
                 <CardContent className="p-4 space-y-3">
                   <div>
@@ -437,6 +483,15 @@ export function GuestManager({
               </Card>
             ))}
           </div>
+
+          <ListPagination
+            page={currentPage}
+            totalPages={guestTotalPages}
+            totalItems={filteredGuests.length}
+            pageSize={GUEST_PAGE_SIZE}
+            onPageChange={setPage}
+            itemLabel="guests"
+          />
         </>
       )}
 
