@@ -697,6 +697,257 @@
   background: #dfe5dc;
 }
 
+/* ---------- cover (opening gate, mirrors the Noir Elegance cover) ---------- */
+
+.calla-bloom.cb-cover-open {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Hero entrance is held at its first frame so the opening animation is seen after the cover. */
+.calla-bloom.cb-cover-idle .cb-hero [class*='cb-in-'] {
+  animation-play-state: paused;
+}
+
+.calla-bloom .cb-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  background: #f7f2e7;
+  will-change: transform, opacity;
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.9s ease;
+}
+
+.calla-bloom .cb-cover-leaving {
+  transform: translateY(-100%);
+  opacity: 0.6;
+}
+
+.calla-bloom .cb-cover-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: min(100vw, 576px);
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  container-type: inline-size;
+  background: #f7f2e7;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.calla-bloom .cb-cover-frame::-webkit-scrollbar {
+  display: none;
+}
+
+.calla-bloom .cb-cover-deco {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.calla-bloom .cb-cover-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Keeps the maroon lettering readable when a cover photo is supplied. */
+.calla-bloom .cb-cover-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 242, 231, 0.94) 0%,
+    rgba(247, 242, 231, 0.88) 45%,
+    rgba(247, 242, 231, 0.96) 100%
+  );
+}
+
+.calla-bloom .cb-cover-band,
+.calla-bloom .cb-cover-anthurium,
+.calla-bloom .cb-cover-lilies,
+.calla-bloom .cb-cover-pearls {
+  position: absolute;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.calla-bloom .cb-cover-band {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(36 * var(--cb-u));
+}
+
+.calla-bloom .cb-cover-anthurium {
+  top: calc(-18 * var(--cb-u));
+  right: calc(-30 * var(--cb-u));
+  width: calc(250 * var(--cb-u));
+  height: auto;
+}
+
+.calla-bloom .cb-cover-lilies {
+  bottom: calc(-28 * var(--cb-u));
+  left: calc(-36 * var(--cb-u));
+  width: calc(268 * var(--cb-u));
+  height: auto;
+}
+
+.calla-bloom .cb-cover-pearls {
+  right: calc(16 * var(--cb-u));
+  bottom: calc(54 * var(--cb-u));
+  width: calc(85 * var(--cb-u));
+  height: auto;
+}
+
+/* Auto margins centre the block but collapse to zero when it is taller than the screen. */
+.calla-bloom .cb-cover-body {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
+  margin: auto 0;
+  padding: calc(84 * var(--cb-u)) calc(52 * var(--cb-u)) calc(64 * var(--cb-u));
+  text-align: center;
+}
+
+.calla-bloom .cb-cover-eyebrow {
+  margin: 0;
+  font-size: max(calc(12.5 * var(--cb-u)), 10px);
+  letter-spacing: calc(4 * var(--cb-u));
+  text-transform: uppercase;
+  color: #6f7c40;
+}
+
+.calla-bloom .cb-cover-title {
+  margin: calc(20 * var(--cb-u)) 0 0;
+  max-width: 100%;
+  font-size: max(calc(58 * var(--cb-u)), 34px);
+  line-height: 1.1;
+  color: var(--cb-maroon);
+  overflow-wrap: anywhere;
+}
+
+.calla-bloom .cb-cover-name {
+  display: block;
+}
+
+.calla-bloom .cb-cover-amp {
+  display: block;
+  margin: calc(10 * var(--cb-u)) 0;
+  font-size: 0.62em;
+  line-height: 1;
+}
+
+.calla-bloom .cb-cover-date {
+  margin: calc(14 * var(--cb-u)) 0 0;
+  font-size: max(calc(29 * var(--cb-u)), 19px);
+  line-height: 1.2;
+  color: #6f7c40;
+  overflow-wrap: anywhere;
+}
+
+/* Double-rule card, the same frame used by the bank cards and the transfer form. */
+.calla-bloom .cb-cover-card {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(386 * var(--cb-u));
+  margin: calc(46 * var(--cb-u)) auto 0;
+  padding: calc(30 * var(--cb-u)) calc(28 * var(--cb-u)) calc(28 * var(--cb-u));
+  background: #fdfbf5;
+  border: calc(1 * var(--cb-u)) solid #a9b08c;
+  border-radius: calc(14 * var(--cb-u));
+  box-shadow: 0 calc(14 * var(--cb-u)) calc(34 * var(--cb-u)) rgba(45, 6, 9, 0.14);
+}
+
+.calla-bloom .cb-cover-card::before {
+  content: '';
+  position: absolute;
+  inset: calc(6 * var(--cb-u));
+  border: calc(0.8 * var(--cb-u)) solid rgba(169, 176, 140, 0.6);
+  border-radius: calc(9 * var(--cb-u));
+  pointer-events: none;
+}
+
+.calla-bloom .cb-cover-dear {
+  display: block;
+  font-size: max(calc(11.5 * var(--cb-u)), 10px);
+  letter-spacing: calc(2.6 * var(--cb-u));
+  text-transform: uppercase;
+  color: #6f7c40;
+}
+
+.calla-bloom .cb-cover-guest {
+  display: block;
+  margin-top: calc(10 * var(--cb-u));
+  font-size: max(calc(33 * var(--cb-u)), 22px);
+  line-height: 1.15;
+  color: var(--cb-maroon);
+  overflow-wrap: anywhere;
+}
+
+.calla-bloom .cb-cover-address {
+  margin: calc(8 * var(--cb-u)) 0 0;
+  font-size: max(calc(11.5 * var(--cb-u)), 10px);
+  line-height: 1.55;
+  color: var(--cb-ink);
+  opacity: 0.75;
+}
+
+.calla-bloom .cb-cover-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: max(calc(46 * var(--cb-u)), 44px);
+  margin-top: calc(26 * var(--cb-u));
+  padding: 0 calc(16 * var(--cb-u));
+  font-family: var(--cb-font-sans), 'Poppins', sans-serif;
+  font-size: max(calc(12 * var(--cb-u)), 11px);
+  letter-spacing: calc(3 * var(--cb-u));
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: var(--cb-wine);
+  background-image: url('/templates/calla-bloom/corduroy.png');
+  background-size: calc(48 * var(--cb-u)) calc(4 * var(--cb-u));
+  background-repeat: repeat;
+  border: 0;
+  border-radius: calc(9 * var(--cb-u));
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.calla-bloom .cb-cover-cta:hover {
+  background-color: var(--cb-maroon);
+}
+
+.calla-bloom .cb-cover-cta:active {
+  transform: scale(0.985);
+}
+
+.calla-bloom .cb-cover-cta:focus-visible {
+  outline: 2px solid var(--cb-olive);
+  outline-offset: 3px;
+}
+
 /* ---------- reduced motion: show the final state, no entrance animation ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -706,6 +957,9 @@
   .calla-bloom .cb-in-fade,
   .calla-bloom .cb-in-pop {
     animation: none;
+  }
+  .calla-bloom .cb-cover {
+    transition: none;
   }
   .calla-bloom .cb-rv {
     opacity: 1;

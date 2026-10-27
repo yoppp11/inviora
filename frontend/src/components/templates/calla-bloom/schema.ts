@@ -9,6 +9,29 @@ import { z } from 'zod';
  * through the shared Background Music form via templateConfig.musicEnabled / musicUrl).
  */
 export const callaBloomSchema = z.object({
+  cover: z
+    .object({
+      subtitle: z.string().default('The Wedding Of'),
+      title: z.string().default('').describe('Leave empty to use the couple names'),
+      dateLabel: z
+        .string()
+        .default('')
+        .describe('Leave empty to format the wedding date as a long Indonesian date'),
+      greeting: z.string().default('Dear,'),
+      openLabel: z.string().default('Open Invitation'),
+      autoPlaySong: z
+        .boolean()
+        .default(true)
+        .describe(
+          'Start the background song as soon as the cover is opened. Turn off to require the guest to tap the music button.'
+        ),
+      coverImageUrl: z
+        .string()
+        .optional()
+        .describe('Optional photo shown behind the cover; the text stays readable on top of it'),
+    })
+    .default({}),
+
   hero: z
     .object({
       titleLine1: z.string().default('These Kids'),

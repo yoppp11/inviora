@@ -368,6 +368,9 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
   const heroNames = `${brideName} & ${groomName}`;
   const heroDate = content.hero.dateLabel || formatShortDate(dateParts);
   const longDate = formatLongDateId(dateParts);
+  const coverTitle = content.cover.title || heroNames;
+  const coverDate = content.cover.dateLabel || longDate;
+  const coverImage = getSafeUrl(content.cover.coverImageUrl);
   const akadDate = content.schedule.akadDateLabel || longDate;
   const akadTime = content.schedule.akadTimeLabel || formatTimeId(event.ceremonyTime);
   const receptionDate = content.schedule.receptionDateLabel || longDate;
@@ -387,6 +390,18 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
   const calendarRows = useMemo(() => (dateParts ? buildCalendar(dateParts) : []), [dateParts]);
   const starCell = findDayCell(calendarRows, dateParts?.day ?? null);
   const accounts = content.gift.accounts.filter((a) => a.bankName || a.accountNumber);
+
+  /* One size for both names and one for every detail line, so a longer name or parent line
+     never renders smaller than its neighbour. */
+  const longestName = brideName.length >= groomName.length ? brideName : groomName;
+  const coupleNameSize = fit(70.7, longestName, 17);
+  const longestDetail = [
+    content.couple.brideParents,
+    content.couple.brideOrigin,
+    content.couple.groomParents,
+    content.couple.groomOrigin,
+  ].reduce((longest, line) => (line.length > longest.length ? line : longest), '');
+  const coupleDetailSize = fit(21.1, longestDetail, 46);
 
   /* ---- scroll reveal: mark every `.cb-rv` element the first time it enters the view ---- */
   const accountCount = accounts.length;
@@ -439,10 +454,28 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
     return () => window.clearInterval(id);
   }, [countdownTarget]);
 
+  /* ---- cover gate: the invitation only scrolls into view once the guest opens it ---- */
+  const [isOpened, setIsOpened] = useState(false);
+  const [isCoverLeaving, setIsCoverLeaving] = useState(false);
+  const coverTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (coverTimer.current !== null) window.clearTimeout(coverTimer.current);
+    },
+    []
+  );
+
   /* ---- music (self managed: the star in the hero is the control) ---- */
   const musicUrl = (config.musicUrl as string | undefined) || undefined;
   const musicEnabled = Boolean(config.musicEnabled && musicUrl);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const handleOpen = () => {
+    if (isOpened || isCoverLeaving) return;
+    setIsCoverLeaving(true);
+    if (musicEnabled && content.cover.autoPlaySong) setIsPlaying(true);
+    coverTimer.current = window.setTimeout(() => setIsOpened(true), 900);
+  };
 
   /* ---- copy account number ---- */
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
@@ -485,18 +518,122 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
   const giftExtra = Math.max(0, accounts.length - 2);
   const giftHeight = accounts.length === 0 ? 520 : 1100 + giftExtra * 240;
 
+  const coverIn = {
+    anthurium: anim('fade', 0.15, 0.9),
+    lilies: anim('fade', 0.3, 1),
+    pearls: anim('fade', 0.45, 1),
+    eyebrow: anim('soft', 0.25),
+    title: anim('rise', 0.42),
+    date: anim('wipe', 0.62, 0.55),
+    card: anim('rise', 0.78),
+  };
+
   return (
-    <div ref={rootRef} className={`calla-bloom ${callaHandFont.variable} ${callaSansFont.variable}`}>
+    <div
+      ref={rootRef}
+      className={`calla-bloom ${callaHandFont.variable} ${callaSansFont.variable}${!isOpened ? ' cb-cover-open' : ''}${!isOpened && !isCoverLeaving ? ' cb-cover-idle' : ''}`}
+    >
       <UniversalAudioPlayer
         url={musicUrl}
         enabled={musicEnabled}
         isPlaying={isPlaying}
-        isOpened={true}
+        isOpened={isOpened || isCoverLeaving}
       />
+
+      {/* ============================ COVER ============================ */}
+      {!isOpened && (
+        <div
+          className={`cb-cover${isCoverLeaving ? ' cb-cover-leaving' : ''}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${content.cover.subtitle} ${coverTitle}`}
+        >
+          <div className="cb-cover-frame">
+            {coverImage && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className="cb-cover-photo"
+                src={coverImage}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+              />
+            )}
+            {coverImage && <div className="cb-cover-veil" aria-hidden="true" />}
+
+            {/* Clipped separately so the decorative bleed never adds scroll overflow. */}
+            <div className="cb-cover-deco" aria-hidden="true">
+              {/* eslint-disable @next/next/no-img-element */}
+              <img className="cb-cover-band" src={`${ASSET}/banner_pearls.webp`} alt="" />
+              <img
+                className={`cb-cover-anthurium ${coverIn.anthurium.className}`}
+                style={coverIn.anthurium.style}
+                src={`${ASSET}/hero_top.webp`}
+                alt=""
+              />
+              <img
+                className={`cb-cover-lilies ${coverIn.lilies.className}`}
+                style={coverIn.lilies.style}
+                src={`${ASSET}/hero_lilies.webp`}
+                alt=""
+              />
+              <img
+                className={`cb-cover-pearls ${coverIn.pearls.className}`}
+                style={coverIn.pearls.style}
+                src={`${ASSET}/closing_pearls.webp`}
+                alt=""
+              />
+              {/* eslint-enable @next/next/no-img-element */}
+            </div>
+
+            <div className="cb-cover-body">
+              <p
+                className={`cb-cover-eyebrow cb-sans ${coverIn.eyebrow.className}`}
+                style={coverIn.eyebrow.style}
+              >
+                {content.cover.subtitle}
+              </p>
+              <h1
+                className={`cb-cover-title cb-hand ${coverIn.title.className}`}
+                style={coverIn.title.style}
+              >
+                {content.cover.title ? (
+                  content.cover.title
+                ) : (
+                  <>
+                    <span className="cb-cover-name">{brideName}</span>
+                    <span className="cb-cover-amp">&amp;</span>
+                    <span className="cb-cover-name">{groomName}</span>
+                  </>
+                )}
+              </h1>
+              {coverDate && (
+                <p
+                  className={`cb-cover-date cb-hand ${coverIn.date.className}`}
+                  style={coverIn.date.style}
+                >
+                  {coverDate}
+                </p>
+              )}
+
+              <div className={`cb-cover-card ${coverIn.card.className}`} style={coverIn.card.style}>
+                <span className="cb-cover-dear cb-sans">{content.cover.greeting}</span>
+                <span className="cb-cover-guest cb-hand">{data.guest.name}</span>
+                {data.guest.address && (
+                  <p className="cb-cover-address cb-sans">{data.guest.address}</p>
+                )}
+                <button type="button" className="cb-cover-cta" onClick={handleOpen}>
+                  {content.cover.openLabel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="cb-column">
         {/* ============================ HERO ============================ */}
-        <Sec top={0} h={1014}>
+        <Sec top={0} h={1014} className="cb-hero">
           <Img src={`${ASSET}/hero_top.webp`} x={268} y={0} w={308} h={214} {...anim('wipe', 0.1, 0.7)} />
 
           <Txt y={196.6} size={78.4} font="hand" color="cb-olive">
@@ -573,10 +710,10 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           <Img src={tagsImage} x={83} y={1232} w={412} h={294} alt="" {...rv('wipe', 0.1, 1)} />
 
           <Txt
-            y={boxTop(1585, fit(60, brideName, 14), 0.14, 1.152)}
-            size={fit(60, brideName, 14)}
-            sx={0.868}
-            sy={1.152}
+            y={boxTop(1585, coupleNameSize, 0.15, 1.11)}
+            size={coupleNameSize}
+            sx={0.9}
+            sy={1.11}
             font="hand"
             color="cb-maroon"
             {...rv('rise')}
@@ -585,7 +722,7 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           </Txt>
           <Txt
             y={1649.1}
-            size={fit(21.1, content.couple.brideParents, 42)}
+            size={coupleDetailSize}
             font="sans"
             color="cb-ink"
             {...rv('soft', 0.18)}
@@ -595,7 +732,7 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           {content.couple.brideOrigin && (
             <Txt
               y={1679.1}
-              size={fit(20.8, content.couple.brideOrigin, 42)}
+              size={coupleDetailSize}
               font="sans"
               color="cb-ink"
               {...rv('soft', 0.26)}
@@ -605,8 +742,8 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           )}
 
           <Txt
-            y={boxTop(1742, 70.8, 0.19, 1.116)}
-            size={70.8}
+            y={boxTop(1742, coupleNameSize, 0.19, 1.116)}
+            size={coupleNameSize}
             sx={0.897}
             sy={1.116}
             font="hand"
@@ -617,8 +754,8 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           </Txt>
 
           <Txt
-            y={boxTop(1833, fit(70.7, groomName, 12), 0.15, 1.11)}
-            size={fit(70.7, groomName, 12)}
+            y={boxTop(1833, coupleNameSize, 0.15, 1.11)}
+            size={coupleNameSize}
             sx={0.9}
             sy={1.11}
             font="hand"
@@ -629,7 +766,7 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           </Txt>
           <Txt
             y={1903.1}
-            size={fit(21.2, content.couple.groomParents, 42)}
+            size={coupleDetailSize}
             font="sans"
             color="cb-ink"
             {...rv('soft', 0.18)}
@@ -639,7 +776,7 @@ export function CallaBloomTemplate({ data }: { data: InvitationData }) {
           {content.couple.groomOrigin && (
             <Txt
               y={1933.2}
-              size={fit(20.4, content.couple.groomOrigin, 42)}
+              size={coupleDetailSize}
               font="sans"
               color="cb-ink"
               {...rv('soft', 0.26)}
