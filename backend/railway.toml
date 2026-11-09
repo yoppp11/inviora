@@ -1,10 +1,11 @@
 # Railway deployment config for the Inviora backend.
 # This file is picked up when the Railway service Root Directory is set to `backend`.
+# Dependencies are installed by the nixpacks install phase (see nixpacks.toml).
 # Docs: https://docs.railway.com/guides/config-as-code
 
 [build]
 builder = "nixpacks"
-buildCommand = "npm install --include=dev && npm run build && npm prune --omit=dev"
+buildCommand = "npm run build && npm prune --omit=dev"
 
 [deploy]
 startCommand = "npm run start:prod"

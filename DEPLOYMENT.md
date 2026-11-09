@@ -127,8 +127,14 @@ npx prisma migrate deploy
 7. Test: buka `https://your-api-url/api/health`
 
 Railway akan menjalankan:
-- Build: `npm install --include=dev && npm run build && npm prune --omit=dev` (lihat `backend/railway.toml`)
+- Install: `npm ci --include=dev` (lihat `backend/nixpacks.toml`)
+- Build: `npm run build && npm prune --omit=dev` (lihat `backend/railway.toml`)
 - Start: `npm run start:prod` (migrate + start server)
+
+> **Catatan lockfile:** `backend/` berisi `package-lock.json` **dan** `pnpm-lock.yaml`.
+> Nixpacks otomatis memilih pnpm kalau `pnpm-lock.yaml` ada, dan itu gagal
+> (`ERROR packages field missing or empty`). Karena itu `backend/nixpacks.toml`
+> memaksa fase install memakai npm.
 
 ### Step 4 — Deploy Frontend (Vercel)
 

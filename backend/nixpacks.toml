@@ -1,0 +1,8 @@
+# This package ships both npm and pnpm lockfiles. Nixpacks picks pnpm because
+# pnpm-lock.yaml exists, but pnpm-workspace.yaml here declares no `packages`
+# field, so `pnpm i --frozen-lockfile` aborts with
+# "packages field missing or empty".
+# Deployment installs with npm (package-lock.json), so pin the install phase too.
+
+[phases.install]
+cmds = ["npm ci --include=dev"]
