@@ -112,13 +112,22 @@ npx prisma migrate deploy
 1. Login [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
 2. Pilih repo `inviora`
 3. **Settings** → **Root Directory** = `backend`
-4. **Variables** → tambahkan semua env backend (lihat tabel di atas)
-5. Deploy otomatis berjalan. Catat URL publik, misalnya:
+   > ⚠️ Wajib diisi. Kalau dibiarkan kosong, Railway akan build dari root repo
+   > (yang hanya berisi paket Neon CLI dan **tidak punya script `build`**) dan
+   > deploy gagal dengan `npm error Missing script: "build"`.
+   > Kalau Root Directory sengaja dikosongkan, `railway.toml` di root repo sudah
+   > diarahkan dengan `cd backend` sehingga build tetap benar.
+4. Tambah database: **New** → **Database** → **PostgreSQL**
+5. **Variables** → tambahkan semua env backend (lihat tabel di atas), termasuk:
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (reference ke service Postgres di project yang sama)
+   - `NODE_ENV` = `production`
+   - Opsional: `NIXPACKS_NODE_VERSION` = `22` (Railway default masih Node 18 yang sudah EOL)
+6. Deploy otomatis berjalan. Catat URL publik, misalnya:
    `https://inviora-api-production.up.railway.app`
-6. Test: buka `https://your-api-url/api/health`
+7. Test: buka `https://your-api-url/api/health`
 
 Railway akan menjalankan:
-- Build: `npm install --include=dev && npm run build && npm prune --omit=dev`
+- Build: `npm install --include=dev && npm run build && npm prune --omit=dev` (lihat `backend/railway.toml`)
 - Start: `npm run start:prod` (migrate + start server)
 
 ### Step 4 — Deploy Frontend (Vercel)

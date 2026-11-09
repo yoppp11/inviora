@@ -3,17 +3,24 @@
 #
 # Setup:
 # 1. Create a new Railway project
-# 2. Add PostgreSQL plugin (or use Neon and set DATABASE_URL manually)
-# 3. Connect this repo, set Root Directory = backend
-# 4. Add environment variables from backend/.env.example
+# 2. Add the PostgreSQL service (Railway marketplace), then set
+#    DATABASE_URL = ${{Postgres.DATABASE_URL}}
+# 3. Connect this repo. Two options:
+#    a) Recommended: set the service Root Directory to `backend`
+#       (Railway then uses backend/railway.toml)
+#    b) Leave Root Directory empty; the commands below already `cd backend`,
+#       so the build still targets the API package instead of the repo root.
+# 4. Add the remaining environment variables from backend/.env.example
+#    (JWT_SECRET, JWT_EXPIRES_IN, CLOUDINARY_*, NODE_ENV=production)
 # 5. Set CORS_ORIGIN to your Vercel frontend URL
+# 6. Optional: set NIXPACKS_NODE_VERSION=22 so the build does not fall back to Node 18
 
 [build]
 builder = "nixpacks"
-buildCommand = "npm install --include=dev && npm run build && npm prune --omit=dev"
+buildCommand = "cd backend && npm install --include=dev && npm run build && npm prune --omit=dev"
 
 [deploy]
-startCommand = "npm run start:prod"
+startCommand = "cd backend && npm run start:prod"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 120
 restartPolicyType = "on_failure"
